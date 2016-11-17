@@ -1,11 +1,3 @@
-#**概述**
-
-图片过滤模块（内含iOS和android）
-
-APICloud 的 imageFilter 模块是一个图片滤镜。本模块有图片过滤、图片压缩及获取图片信息的功能。
-
-#**模块接口文档**
-
 /*
 Title: imageFilter
 Description: imageFilter
@@ -33,7 +25,7 @@ Description: imageFilter
 
 #**概述**
 
-imageFilter 模块封装了对图片按照指定效果过滤的功能，过滤后的图片可保存到指定目录。另外通过本模块的 getAttr 接口可获取制定图片的大小等信息，compress 接口可实现压缩图片的相关功能。
+imageFilter 模块封装了对图片按照指定效果过滤的功能，过滤后的图片可保存到指定目录。另外通过本模块的 getAttr 接口可获取制定图片的大小等信息，compress 接口可实现压缩图片的相关功能。本模块已开源，开源地址：https://github.com/apicloudcom/imageFilter
 
 ![图片说明](http://docs.apicloud.com/img/docImage/imageFilter.jpg)
 
