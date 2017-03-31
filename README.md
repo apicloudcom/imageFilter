@@ -25,7 +25,7 @@ APICloud 的 imageFilter 模块是一个图片滤镜。本模块有图片过滤�
 
 # **模块概述**
 
-imageFilter 模块封装了对图片按照指定效果过滤的功能，过滤后的图片可保存到指定目录。另外通过本模块的 getAttr 接口可获取制定图片的大小等信息，compress 接口可实现压缩图片的相关功能。本模块已开源，开源地址：https://github.com/apicloudcom/imageFilter
+imageFilter 模块封装了对图片按照指定效果过滤的功能，过滤后的图片可保存到指定目录。另外通过本模块的 getAttr 接口可获取制定图片的大小等信息，compress 接口可实现压缩图片的相关功能。
 
 ![图片说明](http://docs.apicloud.com/img/docImage/imageFilter.jpg)
 
@@ -109,7 +109,7 @@ type：
 
 - 类型：字符串
 - 默认值：default
-- 描述：（可选项）要设置的图片滤镜效果，详情参考[滤镜效果](!Constant)
+- 描述：（可选项）要设置的图片滤镜效果，详情参考[滤镜效果](#filterresult)
 
 value：
 
@@ -418,7 +418,7 @@ iOS系统，Android系统
 
 可提供的1.0.0及更高版本
 
-<div id="const-content">
+<div id="filterresult"></div>
 
 # **滤镜效果**
 
