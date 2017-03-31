@@ -1,51 +1,43 @@
-#**概述**
+# **概述**
 
 图片过滤模块（内含iOS和android）
 
 APICloud 的 imageFilter 模块是一个图片滤镜。本模块有图片过滤、图片压缩及获取图片信息的功能。
 
-#**模块接口文档**
+# **模块接口文档**
 
-/*
-Title: imageFilter
-Description: imageFilter
-*/
-
-<p style="color: #ccc; margin-bottom: 30px;">来自于：官方</p>
+<p style="color: #ccc; margin-bottom: 30px;">来自于：APICloud 官方</p>
 
 <ul id="tab" class="clearfix">
 	<li class="active"><a href="#method-content">Method</a></li>
 	<li><a href="#const-content">Constant</a></li>
 </ul>
-<div id="method-content">
 
 <div class="outline">
-[open](#a1)
 
-[filter](#a2)
+[open](#open)
+[filter](#filter)
+[save](#save)
+[compress](#compress)
+[getAttr](#getAttr)
 
-[save](#a3)
-
-[compress](#a4)
-
-[getAttr](#a5)
 </div>
 
-#**概述**
+# **模块概述**
 
-imageFilter 模块封装了对图片按照指定效果过滤的功能，过滤后的图片可保存到指定目录。另外通过本模块的 getAttr 接口可获取制定图片的大小等信息，compress 接口可实现压缩图片的相关功能。
+imageFilter 模块封装了对图片按照指定效果过滤的功能，过滤后的图片可保存到指定目录。另外通过本模块的 getAttr 接口可获取制定图片的大小等信息，compress 接口可实现压缩图片的相关功能。本模块已开源，开源地址：https://github.com/apicloudcom/imageFilter
 
 ![图片说明](http://docs.apicloud.com/img/docImage/imageFilter.jpg)
 
-<div id="a1"></div>
+<div id="open"></div>
 
-#**open**
+# **open**
 
 打开图片过滤器
 
 open({params}, callback(ret, err))
 
-##params
+## params
 
 imgPath：
 
@@ -53,7 +45,7 @@ imgPath：
 - 默认值：无
 - 描述：原图片路径，支持 fs，widget 等本地协议
 
-##callback(ret, err)
+## callback(ret, err)
 
 ret：
 
@@ -79,11 +71,10 @@ err：
 					0：			//imgPath 为空
 					1：			//imgPath 路径下的图片不存在
 					2：			//图片读取失败
-					3：
 }
 ```
 
-##示例代码
+## 示例代码
 
 ```js
 var imageFilter = api.require('imageFilter');
@@ -98,21 +89,21 @@ imageFilter.open({
 });
 ```
 
-##可用性
+## 可用性
 
 iOS系统，Android系统
 
 可提供的1.0.0及更高版本
 
-<div id="a2"></div>
+<div id="filter"></div>
 
-#**filter**
+# **filter**
 
 设置图片滤镜效果
 
 filter({params}, callback(ret, err))
 
-##params
+## params
 
 type：
 
@@ -132,7 +123,7 @@ id：
 - 默认值：无
 - 描述：要操作的图片的 id
 
-##callback(ret, err)
+## callback(ret, err)
 
 ret：
 
@@ -162,7 +153,7 @@ err：
 }
 ```
 
-##示例代码
+## 示例代码
 
 ```js
 var imageFilter = api.require('imageFilter');
@@ -178,21 +169,21 @@ imageFilter.filter({
 });
 ```
 
-##可用性
+## 可用性
 
 iOS系统，Android系统
 
 可提供的1.0.0及更高版本
 
-<div id="a3"></div>
+<div id="save"></div>
 
-#**save**
+# **save**
 
 保存最终处理结果
 
 save({params}, callback(ret, err))
 
-##params
+## params
 
 album：
 
@@ -220,7 +211,7 @@ id：
 - 默认值：无
 - 描述：要操作的图片的 id
 
-##callback(ret, err)
+## callback(ret, err)
 
 ret：
 
@@ -248,7 +239,7 @@ err：
 }
 ```
 
-##示例代码
+## 示例代码
 
 ```js
 var imageFilter = api.require('imageFilter');
@@ -261,21 +252,21 @@ imageFilter.save(function(ret, err) {
 });
 ```
 
-##可用性
+## 可用性
 
 iOS系统，Android系统
 
 可提供的1.0.0及更高版本
 
-<div id="a4"></div>
+<div id="compress"></div>
 
-#**compress**
+# **compress**
 
 图片压缩处理
 
 compress({params}, callback(ret, err))
 
-##params
+## params
 
 img：
 
@@ -325,7 +316,7 @@ save：
 }
 ```
 
-##callback(ret, err)
+## callback(ret, err)
 
 ret：
 
@@ -353,7 +344,7 @@ err：
 }
 ```
 
-##示例代码
+## 示例代码
 
 ```js
 var imageFilter = api.require('imageFilter');
@@ -369,28 +360,28 @@ imageFilter.compress({
 });
 ```
 
-##可用性
+## 可用性
 
 iOS系统，Android系统
 
 可提供的1.0.0及更高版本
 
-<div id="a5"></div>
+<div id="getAttr"></div>
 
-#**getAttr**
+# **getAttr**
 
 获取指定路径下的图片信息
 
-getAttr({params}, callback(ret, err))
+getAttr({params}, callback(ret))
 
-##params
+## params
 
 path：
 
 - 类型：字符串
 - 描述：目标图片的路径，支持 fs 等本地路径
 
-##callback(ret, err)
+## callback(ret)
 
 ret：
 
@@ -421,21 +412,19 @@ imageFilter.getAttr({
 });
 ```
 
-##可用性
+## 可用性
 
 iOS系统，Android系统
 
 可提供的1.0.0及更高版本
 
-</div>
-
 <div id="const-content">
 
-#**滤镜效果**
+# **滤镜效果**
 
 图片过滤的效果类型。字符串类型
 
-##取值范围：
+## 取值范围：
 
 - black_white   //黑白
 - blur          //模糊
@@ -450,7 +439,7 @@ iOS系统，Android系统
 - fresh         //
 - rainbow       //
 
-**ios特有效果：**
+**iOS特有效果：**
 
 - emerald        	//绿宝石(无value)
 - bright       		//光亮(无value)
