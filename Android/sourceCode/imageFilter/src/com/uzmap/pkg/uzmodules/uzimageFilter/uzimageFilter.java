@@ -29,6 +29,7 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.uzmap.pkg.uzcore.UZWebView;
 import com.uzmap.pkg.uzcore.uzmodule.UZModule;
@@ -371,22 +372,17 @@ public class uzimageFilter extends UZModule {
 	public void jsmethod_compress(final UZModuleContext context) {
 
 		new Thread(new Runnable() {
-
 			@Override
 			public void run() {
-
 				String imgPath = context.optString("img");
 				if (TextUtils.isEmpty(imgPath)) {
 					return;
 				}
-
 				final double quality = context.optDouble("quality", 0.1);
-
 				float scale = -1;
 				if (!context.isNull("scale") && context.isNull("size")) {
 					scale = (float) context.optDouble("scale", 1.0);
 				}
-
 				BitmapSize mSize = null;
 				if (!context.isNull("size")) {
 					JSONObject sizeObj = context.optJSONObject("size");
@@ -396,18 +392,15 @@ public class uzimageFilter extends UZModule {
 						mSize = new BitmapSize(w, h);
 					}
 				}
-
 				final JSONObject saveObj = context.optJSONObject("save");
-
 				Bitmap bitmap = null;
 				String saveImgPath = null;
 				boolean album = false;
 				String imgName = null;
 
 				if (saveObj != null) {
-
 					album = saveObj.optBoolean("album");
-					saveImgPath = generatePath(saveObj.optString("imgPath"));
+					saveImgPath = context.makeRealPath(saveObj.optString("imgPath"));
 					imgName = saveObj.optString("imgName");
 					bitmap = getBitmap(context, imgPath);
 
@@ -416,8 +409,7 @@ public class uzimageFilter extends UZModule {
 					return;
 				}
 
-				int degree = BitmapToolkit
-						.readPictureDegree(generatePath(imgPath));
+				int degree = BitmapToolkit.readPictureDegree(generatePath(imgPath));
 				bitmap = BitmapToolkit.rotaingImageView(degree, bitmap);
 				if (bitmap == null) {
 					return;
@@ -459,30 +451,20 @@ public class uzimageFilter extends UZModule {
 		}
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		int options = 80;
+		int options = (int)(quality * 100);
 
-		int maxSize = (int) (1024 * quality);
-
+		// int maxSize = (int) (1024 * quality);
+		
 		if (image == null) {
 			return;
 		}
-
+		
 		if (imgName.endsWith(".jpg") || imgName.endsWith(".jpeg")) {
 			image.compress(Bitmap.CompressFormat.JPEG, options, baos);
 		} else {
 			image.compress(Bitmap.CompressFormat.PNG, options, baos);
 		}
-
-		while (baos.toByteArray().length / 1024 > maxSize && options > 0) {
-			baos.reset();
-			options -= 10;
-			if (imgName.endsWith(".jpg")) {
-				image.compress(Bitmap.CompressFormat.JPEG, options, baos);
-			} else {
-				image.compress(Bitmap.CompressFormat.PNG, options, baos);
-			}
-		}
-
+		
 		if (saveAlbum) {
 			final File mediaStorageDir = new File(
 					Environment
@@ -588,6 +570,9 @@ public class uzimageFilter extends UZModule {
 	}
 
 	public String generatePath(String pathname) {
+		if(new File(pathname).exists()){
+			return pathname;
+		}
 		String path = makeRealPath(pathname);
 		String tmpPath = path.replaceFirst("file://", "");
 		return tmpPath;
@@ -684,15 +669,7 @@ public class uzimageFilter extends UZModule {
 			}
 
 		} else {
-
-			String realPath = makeRealPath(imgPath);
-			try {
-				input = UZUtility.guessInputStream(realPath);
-				bitmap = BitmapFactory.decodeStream(input);
-			} catch (IOException e) {
-				createErrorCallback(context, SAVE_FAILED, CALLBACK_FOR_SAVE);
-				e.printStackTrace();
-			}
+			bitmap = UZUtility.getLocalImage(context.makeRealPath(imgPath));
 		}
 
 		if (input != null) {
