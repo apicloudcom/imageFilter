@@ -27,7 +27,7 @@ APICloud 的 imageFilter 模块是一个图片滤镜。本模块有图片过滤�
 
 imageFilter模块封装了对图片按照指定效果过滤的功能，过滤后的图片可保存到指定目录
 
-![图片说明](/img/docImage/imageFilter.jpg)
+![图片说明](https://docs.apicloud.com/img/docImage/imageFilter.jpg)
 
 <div id="a1"></div>
 
