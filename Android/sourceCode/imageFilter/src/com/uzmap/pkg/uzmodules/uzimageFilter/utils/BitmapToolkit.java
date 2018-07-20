@@ -7,6 +7,7 @@
 package com.uzmap.pkg.uzmodules.uzimageFilter.utils;
 
 import java.io.IOException;
+
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
@@ -18,7 +19,7 @@ public class BitmapToolkit {
      * @param path 图片绝对路径
      * @return degree旋转的角度
      */
-	public static int readPictureDegree(String path) {
+    public static int readPictureDegree(String path) {
         int degree  = 0;
         try {
                 ExifInterface exifInterface = new ExifInterface(path);
@@ -89,7 +90,7 @@ public class BitmapToolkit {
 	   if(width > bitmap.getWidth() || height > bitmap.getHeight()){
 		   return null;
 	   }
-	   
+       
        // 创建新的图片  
        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
        return resizedBitmap;

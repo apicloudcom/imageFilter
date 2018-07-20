@@ -15,23 +15,156 @@
     	}
     </style>
 	<script type="text/javascript">
-	    
-	    function openFilter(){
-	    	var imageFilter = api.require('imageFilter');
-			imageFilter.open({
-    			imgPath: 'widget://res/img/apicloud.png'
+	    function compress() {
+			var imageFilter = api.require('imageFilter');
+			imageFilter.compress({
+				img : "/storage/emulated/0/pic1.jpg",
+				quality : 1,
+				scale : 0.5,
+				save : {
+					album : false,
+					imgPath : "fs://img/",
+					imgName : "1.png"
+				}
 			}, function(ret, err) {
-    			if (ret.status) {
-        			alert(JSON.stringify(ret));
-    			} else {
-        			alert(JSON.stringify(err));
-    			}
+				if (ret) {
+					alert(JSON.stringify(ret));
+					//$api.setStorage('name', 'Tom');
+				} else {
+					alert(JSON.stringify(err));
+				}
 			});
-	    }
-	    
+		};
+		var mid;
+		function imageFilter_open() {
+			var obj = api.require('imageFilter');
+			obj.open({
+				imgPath : '/storage/emulated/0/pic1.jpg'
+			}, function(ret, err) {
+				if (ret.status) {
+					mid = ret.id;
+					var params = {
+						type:'blur',
+						value:100,
+						id:ret.id
+					};
+					obj.filter(params, function(ret, err){
+						if(ret.status){
+							alert(ret.path);
+							var param1 = {
+								album:false,
+								imgPath:'fs://',
+								imgName:'apicloud.png',
+								id:mid
+							};
+							obj.save(param1, function(ret, err){
+								if(ret.status){
+									alert("成功");
+								}else{
+									alert("保存失败");
+								}
+							});
+						}else{
+							alert("滤镜失败");
+						}
+					})
+				} else {
+					api.alert({
+						msg : err.code
+					});
+				}
+			});
+		}
+		
+		function fnOpen(){
+			FNImageClip.open({
+                        rect: {
+                                x: 0,
+                                y: 70,
+                                w: api.winWidth,
+                                h: api.winHeight
+                        },
+                        srcPath: imagePath,
+                        style: {
+                                mask: 'rgba(0,0,0,0.3)',
+                                clip: {
+                                        x: 5,
+                                        y: (api.winHeight - 240) / 2 - 65,
+                                        w: api.winWidth - 10,
+                                        h: 240,
+                                        borderColor: '#fff',
+                                        borderWidth: 5,
+                                        appearance: 'rectangle'
+                                }
+                        },
+                  fixedOn: api.frameName,
+                        mode: 'image',
+                }, function(ret, err) {
+                        if (ret) {
+
+                        }
+                });
+		}
+		
+		function openTest(){
+			var imageId = null;
+            var imageFilter = api.require('imageFilter');
+            imageFilter.open({
+                imgPath: '/storage/emulated/0/pic2.jpeg'
+            }, function (ret, err) {
+                if (ret.status) {
+                    imageId = ret.id;
+                    imageFilter.filter({
+                        id: imageId,
+                        type: 'blur',
+                        value: 30
+                    }, function (ret, err) {
+                        if (ret.status) {
+                            var imgPath = 'fs://posterCache/upload/';
+                            var imgName = new Date().getTime() + '.jpg';
+                            imageFilter.save({
+                                album: true,
+                                imgPath: imgPath,
+                                imgName: imgName,
+                                id: imageId
+                            }, function (ret, err) {
+                                if (ret.status) {
+                                    alert(JSON.stringify(ret));
+                                    document.getElementById('img1').src = api.fsDir + '/posterCache/upload/' + imgName;
+                                } else {
+                                    alert(JSON.stringify(err));
+                                }
+                            });
+                        } else {
+                            alert(JSON.stringify(err));
+                        }
+                    });
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+		}
+		
 	</script>
 </head>
 <body>
-	<input type="button" name="open" value="open" onclick="openFilter()"/>
+    <div id="wrap">
+        <div id="main">
+        	<br>
+        		<div class='itemtitle'>1.open</div>
+				<div class="clickbtn" tapmode="active" onclick="imageFilter_open()" >imageFilter_open()</div> 
+			<div class='itemtitle'>1.openTest</div>
+				<div class="clickbtn" tapmode="active" onclick="openTest()" >openTest()</div>
+			<div class='itemtitle'>1.fnOpen</div>
+				<div class="clickbtn" tapmode="active" onclick="fnOpen()" >fnOpen()</div> 
+			<div class='itemtitle'>1.compress</div>
+				<div class="clickbtn" tapmode="active" onclick="compress()" >imageFilter_compress()</div> 
+				 
+			<br><br><br><br><br><br><br>
+			<img id='img1' width='300' height='200' src='/storage/emulated/0/pic2.jpeg'>
+		</div>
+		
+		
+	</div>
 </body>
 </html>

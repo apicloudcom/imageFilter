@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		71D9CF3E1B32CF34006D04BC /* ImageUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 71D9CF3D1B32CF34006D04BC /* ImageUtil.m */; };
+		B601022A20EF15FB0045A99D /* WYBlurryImage.m in Sources */ = {isa = PBXBuildFile; fileRef = B601022920EF15FB0045A99D /* WYBlurryImage.m */; };
+		B601022D20EF17D00045A99D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B601022C20EF17D00045A99D /* Accelerate.framework */; };
 		CA2154191ACE62CF009A3FDB /* UZImageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = CA2154181ACE62CF009A3FDB /* UZImageFilter.m */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +31,9 @@
 		03ABE0DE1BBA51B600311455 /* UZModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UZModule.h; sourceTree = "<group>"; };
 		71D9CF3C1B32CF34006D04BC /* ImageUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageUtil.h; sourceTree = "<group>"; };
 		71D9CF3D1B32CF34006D04BC /* ImageUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageUtil.m; sourceTree = "<group>"; };
+		B601022820EF15FB0045A99D /* WYBlurryImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYBlurryImage.h; sourceTree = "<group>"; };
+		B601022920EF15FB0045A99D /* WYBlurryImage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYBlurryImage.m; sourceTree = "<group>"; };
+		B601022C20EF17D00045A99D /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		CA2154171ACE62CF009A3FDB /* UZImageFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UZImageFilter.h; sourceTree = "<group>"; };
 		CA2154181ACE62CF009A3FDB /* UZImageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UZImageFilter.m; sourceTree = "<group>"; };
 		CAF0C32E1ACD2B5B003FD058 /* libUZImageFilter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libUZImageFilter.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -39,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B601022D20EF17D00045A99D /* Accelerate.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,12 +61,21 @@
 			path = headFile;
 			sourceTree = "<group>";
 		};
+		B601022B20EF17D00045A99D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B601022C20EF17D00045A99D /* Accelerate.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		CAF0C3251ACD2B5B003FD058 = {
 			isa = PBXGroup;
 			children = (
 				03ABE0DB1BBA519600311455 /* headFile */,
 				CAF0C3301ACD2B5B003FD058 /* UZImageFilter */,
 				CAF0C32F1ACD2B5B003FD058 /* Products */,
+				B601022B20EF17D00045A99D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -77,6 +92,8 @@
 			children = (
 				CA2154171ACE62CF009A3FDB /* UZImageFilter.h */,
 				CA2154181ACE62CF009A3FDB /* UZImageFilter.m */,
+				B601022820EF15FB0045A99D /* WYBlurryImage.h */,
+				B601022920EF15FB0045A99D /* WYBlurryImage.m */,
 				71D9CF3C1B32CF34006D04BC /* ImageUtil.h */,
 				71D9CF3D1B32CF34006D04BC /* ImageUtil.m */,
 			);
@@ -141,6 +158,7 @@
 			files = (
 				CA2154191ACE62CF009A3FDB /* UZImageFilter.m in Sources */,
 				71D9CF3E1B32CF34006D04BC /* ImageUtil.m in Sources */,
+				B601022A20EF15FB0045A99D /* WYBlurryImage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,7 +202,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
@@ -222,7 +240,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

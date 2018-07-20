@@ -1,8 +1,9 @@
 {
 	modules:[
 		{
-		    name:'imageFilter',
-		    class:'com.uzmap.pkg.uzmodules.uzimageFilter.uzimageFilter'
+			name:'imageFilter',
+			class:'com.uzmap.pkg.uzmodules.uzimageFilter.uzimageFilter'
 		}
+
 	]
 }

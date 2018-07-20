@@ -1,11 +1,14 @@
-<widget id="A0000000000001"  version="0.0.1">
-    <name>ModuleDemo</name>
-    <description>A sample of APICloud module extension.</description>
+ <widget id="A6976471646740"  version="0.0.1">
+    <name>Getui</name>
+    <description>
+        Example For APICloud.
+    </description>
     <author email="developer@apicloud.com" href="http://www.apicloud.com">
-        developer
+        Developer
     </author>
     <content src="index.html" />
     <access origin="*" />
-    <preference name="bounces" value="true" />
-    <preference name="customRefreshHeader" value="cusHeader" />
+    <preference name="pageBounce" value="false"/>
+	<preference name="statusBarAppearance" value="true" />
+	
 </widget>

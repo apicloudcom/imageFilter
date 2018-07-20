@@ -27,14 +27,18 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.uzmap.pkg.uzcore.UZCoreUtil;
 import com.uzmap.pkg.uzcore.UZWebView;
 import com.uzmap.pkg.uzcore.uzmodule.UZModule;
 import com.uzmap.pkg.uzcore.uzmodule.UZModuleContext;
 import com.uzmap.pkg.uzkit.UZUtility;
+import com.uzmap.pkg.uzmodules.uzimageFilter.blur.EasyBlur;
+import com.uzmap.pkg.uzmodules.uzimageFilter.compress.Compressor;
 import com.uzmap.pkg.uzmodules.uzimageFilter.imageFilter.IImageFilter;
 import com.uzmap.pkg.uzmodules.uzimageFilter.imageFilter.Main.FilterFactory;
 import com.uzmap.pkg.uzmodules.uzimageFilter.imageFilter.Main.ImageProcessCallback;
@@ -221,9 +225,10 @@ public class uzimageFilter extends UZModule {
 					createErrorCallback(moduleContext, OPEN_IMAGE_FAILED, CALLBACK_FOR_OPEN);
 					return;
 				}
+				Bitmap bitmap1 = UZUtility.getLocalImage(realPath);
 				
-				int id = bitmap.hashCode();
-				bitmaps.put(id, bitmap);
+				int id = bitmap1.hashCode();
+				bitmaps.put(id, bitmap1);
 				createSuccessCallback(moduleContext, id, "", CALLBACK_FOR_OPEN);
 			}
 
@@ -272,14 +277,13 @@ public class uzimageFilter extends UZModule {
 				
 				Activity activity = (Activity) moduleContext.getContext();
 				IImageFilter filter = FilterFactory.createFilter(mType, value);
-				ProcessImageTask task = new ProcessImageTask(activity, bitmap,
-						filter);
+				ProcessImageTask task = new ProcessImageTask(activity, bitmap, filter, type, value);
 				task.setCallback(new ImageProcessCallback() {
 					@Override
 					public void onResultCallback(Bitmap tmpbitmap) {
 						if (tmpbitmap != null) {
 							if (bitmap != null && !bitmap.isRecycled()) {
-								bitmap.recycle();
+								//bitmap.recycle();
 							}
 							bitmaps.put(id, tmpbitmap);
 
@@ -340,12 +344,14 @@ public class uzimageFilter extends UZModule {
 
 					@Override
 					public void run() {
-						saveImage(moduleContext, bitmap, mediaStorageDir,
-								System.currentTimeMillis() + ".png", true);
+						Bitmap finalBitmap = EasyBlur.with(context()).bitmap(bitmap).radius(25).scale(1).blur();
+						saveImage(moduleContext, finalBitmap, mediaStorageDir,
+								UZCoreUtil.formatDate(System.currentTimeMillis()) + ".png", true);
 					}
 				}).start();
 
 			}
+			
 			if (!TextUtils.isEmpty(imgPath) && !TextUtils.isEmpty(imgName)) {
 
 				final File path = new File(imgPath);
@@ -355,7 +361,8 @@ public class uzimageFilter extends UZModule {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						saveImage(moduleContext, bitmap, path, imgName, !album);
+						Bitmap finalBitmap = EasyBlur.with(context()).bitmap(bitmap).radius(25).scale(1).blur();
+						saveImage(moduleContext, finalBitmap, path, imgName, false);
 					}
 				}).start();
 
@@ -368,6 +375,7 @@ public class uzimageFilter extends UZModule {
 					CALLBACK_FOR_SAVE);
 		}
 	}
+	
 
 	public void jsmethod_compress(final UZModuleContext context) {
 
@@ -376,6 +384,7 @@ public class uzimageFilter extends UZModule {
 			public void run() {
 				String imgPath = context.optString("img");
 				if (TextUtils.isEmpty(imgPath)) {
+					createErrorCallback(context, 3, -1);
 					return;
 				}
 				final double quality = context.optDouble("quality", 0.1);
@@ -399,6 +408,7 @@ public class uzimageFilter extends UZModule {
 				String imgName = null;
 
 				if (saveObj != null) {
+					
 					album = saveObj.optBoolean("album");
 					saveImgPath = context.makeRealPath(saveObj.optString("imgPath"));
 					imgName = saveObj.optString("imgName");
@@ -412,14 +422,31 @@ public class uzimageFilter extends UZModule {
 				int degree = BitmapToolkit.readPictureDegree(generatePath(imgPath));
 				bitmap = BitmapToolkit.rotaingImageView(degree, bitmap);
 				if (bitmap == null) {
+					createErrorCallback(context, 3, -1);
 					return;
 				}
 				compressImage(context, bitmap, saveImgPath, imgName, quality,
 						scale, album, mSize);
 			}
-
 		}).start();
 
+	}
+	
+	
+	public void jsmethod_compress1(UZModuleContext moduleContext) {
+		try {
+			File file = new Compressor(context())
+					.setDestinationDirectoryPath("/storage/emulated/0/Music/")
+					.setQuality(75)
+					.setMaxWidth(150)
+		            .setMaxHeight(150)
+		            .setCompressFormat(Bitmap.CompressFormat.PNG)
+					.compressToFile(new File("/storage/emulated/0/qq.png"));
+			Log.e("TAG", file.getAbsolutePath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void compressImage(UZModuleContext context, Bitmap image,
@@ -451,6 +478,9 @@ public class uzimageFilter extends UZModule {
 		}
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		if (quality == 1) {
+			quality -= 0.1;
+		}
 		int options = (int)(quality * 100);
 
 		// int maxSize = (int) (1024 * quality);
@@ -489,12 +519,17 @@ public class uzimageFilter extends UZModule {
 				e.printStackTrace();
 			}
 		}
+		
+		if(TextUtils.isEmpty(path)){
+			return;
+		}
 
 		File saveToSDcardPath = new File(path);
 		if(!saveToSDcardPath.exists()){
 			saveToSDcardPath.mkdirs();
 		}
 		File realSavePath = new File(saveToSDcardPath, imgName);
+		
 		try {
 			FileOutputStream fos = new FileOutputStream(realSavePath);
 			fos.write(baos.toByteArray());
@@ -512,21 +547,23 @@ public class uzimageFilter extends UZModule {
 			e.printStackTrace();
 		}
 	}
+	
 
 	public void saveImage(UZModuleContext context, Bitmap bitmap, File path,
 			String imgName, boolean callback) {
 
 		FileOutputStream outStream;
 		try {
+			File savePath;
 			if (imgName != null && imgName.endsWith(".jpg")) {
 
-				File savePath = new File(path, imgName);
+				savePath = new File(path, imgName);
 				outStream = new FileOutputStream(savePath);
 				bitmap.compress(CompressFormat.JPEG, 100, outStream);
 
 			} else if (imgName != null && imgName.endsWith(".png")) {
 
-				File savePath = new File(path, imgName);
+				savePath = new File(path, imgName);
 				outStream = new FileOutputStream(savePath);
 				bitmap.compress(CompressFormat.PNG, 100, outStream);
 
@@ -536,14 +573,19 @@ public class uzimageFilter extends UZModule {
 				} else {
 					imgName += ".png";
 				}
-				File savePath = new File(path, imgName);
+				savePath = new File(path, imgName);
 				outStream = new FileOutputStream(savePath);
 				bitmap.compress(CompressFormat.PNG, 100, outStream);
 			}
-
-			Uri ur = Uri.fromFile(path);
-			context.getContext().sendBroadcast(
-					new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, ur));
+			
+			if (callback) {
+				if (imgName.endsWith(".")) {
+					imgName += "png";
+				} else {
+					imgName += ".png";
+				}
+				sendBradcase(savePath);
+			}
 
 			if (outStream != null) {
 				outStream.close();
@@ -554,6 +596,59 @@ public class uzimageFilter extends UZModule {
 			createErrorCallback(context, SAVE_FAILED, CALLBACK_FOR_SAVE);
 		} catch (IOException e) {
 			createErrorCallback(context, SAVE_FAILED, CALLBACK_FOR_SAVE);
+		}
+	}
+	
+	private void sendBradcase(File file) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			sendBroadcastUpKitkat(file);
+		} else {
+			sendBroadcastDownKitkat();
+		}
+	}
+	
+	private void sendBroadcastUpKitkat(File file) {
+		Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+		Uri contentUri = Uri.fromFile(file);
+		mediaScanIntent.setData(contentUri);
+		context().sendBroadcast(mediaScanIntent);
+	}
+
+	private void sendBroadcastDownKitkat() {
+		context().sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+				Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+	}
+	
+	public static void copyfile(File fromFile, File toFile) {
+		if (!fromFile.exists()) {
+			return;
+		}
+		if (!fromFile.isFile()) {
+			return;
+		}
+		if (!fromFile.canRead()) {
+			return;
+		}
+		if (!toFile.getParentFile().exists()) {
+			toFile.getParentFile().mkdirs();
+		}
+		if (toFile.exists()) {
+			toFile.delete();
+		}
+		try {
+			FileInputStream fosfrom = new FileInputStream(fromFile);
+			FileOutputStream fosto = new FileOutputStream(toFile);
+			byte[] bt = new byte[1024];
+			int c;
+			while ((c = fosfrom.read(bt)) > 0) {
+				fosto.write(bt, 0, c);
+			}
+			fosfrom.close();
+			fosto.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -642,7 +737,7 @@ public class uzimageFilter extends UZModule {
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		saveImage(context, thumnail, file, "thumnail.png", true);
+		saveImage(context, thumnail, file, "thumnail.png", false);
 		return new File(file, "thumnail.png").getAbsolutePath();
 	}
 

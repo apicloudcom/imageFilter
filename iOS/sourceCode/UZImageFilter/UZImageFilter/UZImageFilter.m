@@ -1,6 +1,6 @@
 /**
   * APICloud Modules
-  * Copyright (c) 2014-2015 by APICloud, Inc. All Rights Reserved.
+  * Copyright (c) 2014-2018 by APICloud, Inc. All Rights Reserved.
   * Licensed under the terms of the The MIT License (MIT).
   * Please see the license.html included with this distribution for details.
   */
@@ -11,7 +11,7 @@
 #import "NSDictionaryUtils.h"
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "ImageUtil.h"
-
+#import "WYBlurryImage.h"
 static int number = 1;
 
 @interface UZImageFilter ()
@@ -173,7 +173,10 @@ static int number = 1;
 
     if (isRightOpenId) {//status
         UIImage *superImg = [_allImage objectForKey:[NSNumber numberWithInt:filterOpenId]];
+        NSLog(@"superImg:%lf,%lf",superImg.size.width,superImg.size.height);
         filterResultImage = [self filteredImage:superImg withFilterName:filterType withValue:_filterValue filter:filterOpenId];
+        NSLog(@"filterResultImage:%lf,%lf",filterResultImage.size.width,filterResultImage.size.height);
+        
         //取50x50大小的缩略图
         UIImage *img = [self reSizeImage:filterResultImage toSize:CGSizeMake(200, 200)];
         //将初步滤镜后的缩略图图片(50x50)存储至    Document/imageFilter 文件夹下
@@ -186,14 +189,15 @@ static int number = 1;
         }
         NSData *data;
         if (UIImagePNGRepresentation(img) == nil) {
-            data = UIImageJPEGRepresentation(img, 1);
+            data = UIImageJPEGRepresentation(img, 1.0);
         }else {
             data = UIImagePNGRepresentation(img);
         }
         if ([_allImage objectForKey:[NSNumber numberWithInt:filterOpenId]]) {
             [_allImage removeObjectForKey:[NSNumber numberWithInt:filterOpenId]];
         }
-        [_allImage setObject:img forKey:[NSNumber numberWithInteger:filterOpenId]];
+        
+        [_allImage setObject:filterResultImage forKey:[NSNumber numberWithInteger:filterOpenId]];
             
         //创建路径
         [fileManager createDirectoryAtPath:filePath withIntermediateDirectories:YES attributes:nil error:nil];
@@ -221,7 +225,7 @@ static int number = 1;
 
 //等比率缩放
 - (UIImage *)scaleImage:(UIImage *)image toScale:(float)scaleSize {
-    UIGraphicsBeginImageContext(CGSizeMake(image.size.width * scaleSize, image.size.height * scaleSize));
+    UIGraphicsBeginImageContext(CGSizeMake(floor(image.size.width * scaleSize),floor(image.size.height * scaleSize)));
     [image drawInRect:CGRectMake(0, 0, image.size.width * scaleSize, image.size.height * scaleSize)];
     UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
@@ -230,11 +234,13 @@ static int number = 1;
 
 //自定长宽
 - (UIImage *)reSizeImage:(UIImage *)image toSize:(CGSize)reSize {
-    UIGraphicsBeginImageContext(CGSizeMake(reSize.width, reSize.height));
-    [image drawInRect:CGRectMake(0, 0, reSize.width, reSize.height)];
+    UIGraphicsBeginImageContext(CGSizeMake(floor(reSize.width),floor(reSize.height)));
+    [image drawInRect:CGRectMake(0, 0, reSize.width,reSize.height)];
+    
     UIImage *reSizeImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return reSizeImage;
+    
 }
 
 /**
@@ -271,9 +277,12 @@ static int number = 1;
     }
     if ([filterName isEqualToString:@"blur"]) {
         //    高斯模糊:CIGaussianBlur   inputRadius 0~100  越大越模糊
-        _colorControlsFilter = [CIFilter filterWithName:@"CIGaussianBlur"];
-        [_colorControlsFilter setValue:defaultCIImage forKey:kCIInputImageKey];
-        [_colorControlsFilter setValue:[NSNumber numberWithInteger:value] forKey:@"inputRadius"];
+//        _colorControlsFilter = [CIFilter filterWithName:@"CIGaussianBlur"];
+//        [_colorControlsFilter setValue:defaultCIImage forKey:kCIInputImageKey];
+//        [_colorControlsFilter setValue:[NSNumber numberWithInteger:value] forKey:@"inputRadius"];
+        //filterImage = [WYBlurryImage boxblurImage:defaultImage withBlurNumber:100];
+        
+        filterImage = [WYBlurryImage coreBlurImage:defaultImage withBlurNumber:value];
     }
     if ([filterName isEqualToString:@"film"]) {
         //    胶片:CIVignette   inputIntensity -1~1   inputRadius 0~2
@@ -442,14 +451,14 @@ static int number = 1;
     if ([filterName isEqualToString:@"nightScene"]) {
         filterImage = [ImageUtil imageWithImage:imaged withColorMatrix:colormatrix_yese];
     }
-    
     //拿到处理后的结果
     CIImage *outputImage= [_colorControlsFilter outputImage];//取得输出图像
     CGImageRef temp=[_context createCGImage:outputImage fromRect:[outputImage extent]];
     result = [UIImage imageWithCGImage:temp];//转化为CGImage显示在界面中
+    NSLog(@"result:%lf,%lf",result.size.width,result.size.height);
     finalResult = result;
     CGImageRelease(temp);//释放CGImage对象
-    if ([filterName isEqualToString:@"bright"]|[filterName isEqualToString:@"black_white"]|[filterName isEqualToString:@"emerald"]|[filterName isEqualToString:@"color_pencil"]|[filterName isEqualToString:@"film"]|[filterName isEqualToString:@"blur"]|[filterName isEqualToString:@"autumn"]) {
+    if ([filterName isEqualToString:@"bright"]|[filterName isEqualToString:@"black_white"]|[filterName isEqualToString:@"emerald"]|[filterName isEqualToString:@"color_pencil"]|[filterName isEqualToString:@"film"]|[filterName isEqualToString:@"autumn"]) {
         return result;
     }else {
         return filterImage;
@@ -471,12 +480,15 @@ static int number = 1;
     NSString *filePath = [paraDic objectForKey:@"imgPath"];
     NSInteger saveOpenId = [paraDic integerValueForKey:@"id" defaultValue:-1];
     UIImage *saveImage = [_allImage objectForKey:[NSNumber numberWithInteger:saveOpenId]];
+    NSLog(@"saveImage:%lf,%lf",saveImage.size.width,saveImage.size.height);
     __block BOOL flag = YES;
     __block BOOL statusErr;//打开相册权限值
     if (isAlbum) {//保存到相册
         ALAssetsLibrary *library = [[ALAssetsLibrary alloc]init];
         __block NSError *blockErr = nil;
         __block NSString *msgErr;
+        NSData *data = UIImagePNGRepresentation(saveImage);
+        saveImage = [UIImage imageWithData:data];
         [library writeImageToSavedPhotosAlbum:saveImage.CGImage orientation:ALAssetOrientationUp completionBlock:^(NSURL *assetURL, NSError *error) {
             blockErr = error;
             if (error) {
@@ -508,10 +520,8 @@ static int number = 1;
         } else {
             [fileManager createDirectoryAtPath:filePath withIntermediateDirectories:YES attributes:nil error:nil];
         }
-        NSData *data;
-        if (UIImagePNGRepresentation(saveImage) == nil) {
-            data = UIImageJPEGRepresentation(saveImage, 0.1);
-        } else {
+        NSData *data = UIImageJPEGRepresentation(saveImage, 1.0);
+        if (!data) {
             data = UIImagePNGRepresentation(saveImage);
         }
         //创建路径
@@ -552,12 +562,26 @@ static int number = 1;
     NSString *img = [params_ stringValueForKey:@"img" defaultValue:nil];
     //@"assets-library://asset/asset.JPG?id=BAEA459C-7D20-4A5E-8F55-7A4FBAE87043&ext=JPG";
     UIImage *image = [UIImage imageWithContentsOfFile:[self getPathWithUZSchemeURL:img]];
+    
+    if (image == nil) {
+        
+        NSMutableDictionary *returnDic = [NSMutableDictionary dictionaryWithCapacity:1];
+        NSMutableDictionary *errDict = [NSMutableDictionary dictionaryWithCapacity:1];
+        [returnDic setObject:[NSNumber numberWithBool:NO] forKey:@"status"];
+        [errDict setObject:[NSNumber numberWithInt:-3] forKey:@"code"];
+        [self sendResultEventWithCallbackId:compressId dataDict:returnDic errDict:errDict doDelete:NO];
+        return;
+    }
+    
     if (!image) {//相册内的图片压缩，先读取再压缩保存
+        
+      
         NSURL *url = [[NSURL alloc] initWithString:img];
         ALAssetsLibrary *assetslibrary = [[ALAssetsLibrary alloc] init];
         
         __weak UZImageFilter *wealSelf = self;
         __block UIImage *imageAss;
+
         ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset) {
             //imageAss = [UIImage imageWithCGImage:iref];
             //使用fullResoulutionImage时需传入方向和缩放比例，否则方向和尺寸都不对
@@ -584,6 +608,7 @@ static int number = 1;
         };
         [assetslibrary assetForURL:url resultBlock:resultblock failureBlock:failureblock];
     } else {
+               
         __weak UZImageFilter *wealSelf = self;
         //创建NSBlockOperation 来执行每一次转换，图片复制等耗时操作
         NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
@@ -597,6 +622,7 @@ static int number = 1;
     NSInteger compressId = [params_ integerValueForKey:@"cbId" defaultValue:-1];
     NSDictionary *saveInfo = [params_ dictValueForKey:@"save" defaultValue:nil];
     CGFloat quality = [params_ floatValueForKey:@"quality" defaultValue:0.5];
+    BOOL  isClarityimg = [params_ boolValueForKey:@"isClarityimg" defaultValue:false];
     if (!image) {//图片读取失败
         NSMutableDictionary *returnDic = [NSMutableDictionary dictionaryWithCapacity:1];
         NSMutableDictionary *errDict = [NSMutableDictionary dictionaryWithCapacity:1];
@@ -621,9 +647,16 @@ static int number = 1;
     }
     
     //开始压缩压缩
-    NSData *photo = UIImageJPEGRepresentation(image,quality);
-    image = [UIImage imageWithData:photo];
-    
+    NSData *photo;
+    if (isClarityimg) {
+        photo = UIImagePNGRepresentation(image);
+        image = [UIImage imageWithData:photo];
+    }else
+    {
+        photo = UIImageJPEGRepresentation(image,quality);
+        image = [UIImage imageWithData:photo];
+    }
+
     //保存到系统相册
     __block BOOL isYes = YES;
     __block BOOL flag = YES;

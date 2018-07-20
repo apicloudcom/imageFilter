@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-    <issue id="HandlerLeak">
-        <ignore path="src/com/apicloud/moduleDemo/InnerGroup.java" />
-        <ignore path="src/com/apicloud/moduleDemo/ScrollPictureView.java" />
-        <ignore path="src/com/apicloud/moduleScrollPicture/ScrollPictureView.java" />
+    <issue id="DefaultLocale">
+        <ignore path="src/com/uzmap/pkg/uzmodules/uzdownloadmanager/Helpers.java" />
+        <ignore path="src/com/uzmap/pkg/uzmodules/uzdownloadmanager/UzDownloadManager.java" />
+    </issue>
+    <issue id="Wakelock">
+        <ignore path="src/com/uzmap/pkg/uzmodules/uzdownloadmanager/DownloadThread.java" />
     </issue>
 </lint>
